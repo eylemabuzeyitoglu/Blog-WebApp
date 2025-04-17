@@ -2,6 +2,8 @@ package com.eylemabz.Blog.user;
 
 import com.eylemabz.Blog.blog.Blog;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 
 import java.util.Set;
@@ -12,10 +14,16 @@ public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long userId;
-    private String name;
+    @NotBlank
+    private String userName;
+    @NotBlank
+    @Email
     private String email;
+    @NotBlank
     private String password;
-    private String role;
+    @Enumerated(EnumType.STRING)
+    private UserRole role;
+
 
     @ManyToMany(mappedBy = "likedByUsers")
     private Set<Blog> likedBlogs;
