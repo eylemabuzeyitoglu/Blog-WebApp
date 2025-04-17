@@ -1,0 +1,24 @@
+services:
+  postgres:
+    container_name: postgres-sql-blog
+    image: postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 1234
+      PGDATA: /var/lib/postgresql/data
+      POSTGRES_DB: blog
+    volumes:
+      - postgres:/data/postgres
+    ports:
+      - 5435:5432
+    networks:
+      - blog
+    restart: unless-stopped
+
+networks:
+  blog:
+    driver: bridge
+
+volumes:
+  postgres:
+    driver: local
