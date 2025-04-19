@@ -4,14 +4,21 @@ import com.eylemabz.Blog.comment.Comment;
 import com.eylemabz.Blog.user.User;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
-import lombok.Data;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Set;
 
+
+@Getter
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
 @Entity
-@Data
 public class Blog {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -24,7 +31,6 @@ public class Blog {
     private LocalDateTime createdAt;
     private LocalDateTime updateAt;
     private String imgUrl;
-    private int likedBlog;
 
     @PrePersist
     public void prePersist() {

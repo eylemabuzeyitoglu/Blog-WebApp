@@ -1,6 +1,5 @@
 package com.eylemabz.Blog.blog;
 
-import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -15,15 +14,14 @@ public class BlogController {
     }
 
     @PostMapping
-    public void createBlog(@RequestBody @Valid Blog blog){
-        blogService.createBlog(blog);
+    public void createBlog(@RequestBody BlogRequest blogRequest){
+        blogService.createBlog(blogRequest);
     }
 
-    @PatchMapping
-    public void updateBlog(@RequestParam long id,
-                           @RequestParam String title,
-                           @RequestParam String content){
-        blogService.updateBlog(id,title,content);
+    @PatchMapping("{id}")
+    public void updateBlog(@PathVariable long id,
+                           @RequestBody BlogRequest blogRequest) {
+        blogService.updateBlog(id,blogRequest);
     }
 
     @DeleteMapping("/{id}")
@@ -32,17 +30,17 @@ public class BlogController {
     }
 
     @GetMapping
-    public List<Blog> getAllBlog(){
+    public List<BlogResponse> getAllBlog(){
        return  blogService.getAllBlog();
     }
 
     @GetMapping("/{id}")
-    public Blog getBlogById(@PathVariable Long id){
+    public BlogResponse getBlogById(@PathVariable Long id){
         return blogService.getBlogById(id);
     }
 
     @GetMapping("/index")
-    public List<Blog> getTop5Blog(){
+    public List<BlogResponse> getTop5Blog(){
         return blogService.getTop5Blog();
     }
 

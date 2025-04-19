@@ -1,7 +1,7 @@
 package com.eylemabz.Blog.user;
 
-import com.eylemabz.Blog.blog.Blog;
-import com.eylemabz.Blog.exceptions.UserAlreadyExistException;
+import com.eylemabz.Blog.blog.BlogMapper;
+import com.eylemabz.Blog.blog.BlogResponse;
 import com.eylemabz.Blog.exceptions.UserNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -9,42 +9,50 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 public class UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final UserMapper userMapper;
+    private final BlogMapper blogMapper;
 
-    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
+    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder, UserMapper userMapper, BlogMapper blogMapper) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
+        this.userMapper = userMapper;
+        this.blogMapper = blogMapper;
     }
 
     @Transactional
-    public User createUser(User user){
-        userRepository.findByEmail(user.getEmail())
-                .ifPresent(existingUser -> {
-                    throw new UserAlreadyExistException("Kullanıcı mevcut");
-                });
-        String hashedPassword = passwordEncoder.encode(user.getPassword());
+    public UserResponse createUser(UserRequest userRequest){
+        User user = userMapper.toUserEntity(userRequest);
+
+        String hashedPassword = passwordEncoder.encode(userRequest.getPassword());
         user.setPassword(hashedPassword);
 
-        return userRepository.save(user);
+        User created = userRepository.save(user);
+        return userMapper.toUserResponse(created);
     }
 
     @Transactional
-    public void updateUserInfo(Long userId, String userName, String password) {
+    public UserResponse updateUserInfo(Long userId, UserRequest userRequest) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException("Kullanıcı bulunamadı"));
 
-        if (userName != null && !userName.isEmpty()) {
-            user.setUserName(userName);
+        if (userRequest.getUserName() != null && !userRequest.getUserName() .isEmpty()) {
+            user.setUserName(userRequest.getUserName());
         }
-        if (password != null && !password.isEmpty()) {
-            user.setPassword(passwordEncoder.encode(password));
+        if (userRequest.getPassword() != null && !userRequest.getPassword().isEmpty()) {
+            user.setPassword(passwordEncoder.encode(userRequest.getPassword()));
+        }
+        if (userRequest.getEmail() != null && !userRequest.getEmail().isEmpty()) {
+            user.setEmail(userRequest.getEmail());
         }
 
-        userRepository.save(user);
+        User updated = userRepository.save(user);
+        return userMapper.toUserResponse(updated);
     }
 
     @Transactional
@@ -54,13 +62,19 @@ public class UserService {
         userRepository.deleteById(userId);
     }
 
-    public List<User> getAllUser(){
-        return userRepository.findAll();
+    public List<UserResponse> getAllUser(){
+        return userRepository.findAll()
+                .stream()
+                .map(user -> userMapper.toUserResponse(user))
+                .collect(Collectors.toList());
     }
 
-    public User getUserById(Long userId){
-        return userRepository.findById(userId)
+    public UserResponse getUserById(Long userId){
+        User user =  userRepository.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException("Kullanıcı bulunamadı"));
+
+        return userMapper.toUserResponse(user);
+
     }
 
     public String login(String userName,String rawPassword){
@@ -82,10 +96,13 @@ public class UserService {
         userRepository.save(user);
     }
 
-    public Set<Blog> getLikedBlogsByUserId(Long userId) {
+    public Set<BlogResponse> getLikedBlogsByUserId(Long userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException("Kullanıcı bulunamadı! " ));
-        return user.getLikedBlogs();
+        return user.getLikedBlogs()
+                .stream()
+                .map(blog -> blogMapper.toBlogResponse(blog, blog.getBlogId()))
+                .collect(Collectors.toSet());
     }
 
 }

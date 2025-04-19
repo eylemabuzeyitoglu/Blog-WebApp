@@ -1,6 +1,6 @@
 package com.eylemabz.Blog.user;
 
-import com.eylemabz.Blog.blog.Blog;
+import com.eylemabz.Blog.blog.BlogResponse;
 import com.eylemabz.Blog.blog.BlogService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -20,15 +20,14 @@ public class UserController {
     }
 
     @PostMapping
-    public void createUser(@RequestBody User user){
-        userService.createUser(user);
+    public void createUser(@RequestBody UserRequest userRequest){
+        userService.createUser(userRequest);
     }
 
     @PatchMapping
     public void updateUserInfo(@RequestParam Long userId,
-                               @RequestParam String userName,
-                               @RequestParam String password){
-        userService.updateUserInfo(userId,userName,password);
+                               @RequestBody UserRequest userRequest){
+        userService.updateUserInfo(userId,userRequest);
     }
 
     @DeleteMapping("/{id}")
@@ -43,8 +42,8 @@ public class UserController {
     }
 
     @GetMapping("/{userId}/liked-blogs")
-    public ResponseEntity<Set<Blog>> getLikedBlogs(@PathVariable Long userId) {
-        Set<Blog> likedBlogs = userService.getLikedBlogsByUserId(userId);
+    public ResponseEntity<Set<BlogResponse>> getLikedBlogs(@PathVariable Long userId) {
+        Set<BlogResponse> likedBlogs = userService.getLikedBlogsByUserId(userId);
         return ResponseEntity.ok(likedBlogs);
     }
 

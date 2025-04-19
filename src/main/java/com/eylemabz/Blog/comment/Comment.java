@@ -3,10 +3,13 @@ package com.eylemabz.Blog.comment;
 import com.eylemabz.Blog.blog.Blog;
 import com.eylemabz.Blog.user.User;
 import jakarta.persistence.*;
-import lombok.Data;
+import lombok.*;
 
+@Getter
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
 @Entity
-@Data
 public class Comment {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
